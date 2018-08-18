@@ -1,0 +1,23 @@
+0.Dashboard Representation
+1.Built In Zoom API
+2.Gauges for speed control of data scrapping dial type
+3.Error Plots
+4.Interactive Graph
+	a.width change
+	b.hashed graph
+5.Graph change options
+	a.bar graph
+	b.area graph
+
+
+Dashboard Components
+1.Live Value
+2.Error Plot + Predicted Data Graph + View Controller
+3.Historic Graph + Controller( Previous data sample space + View Controller )
+4.Frequency Dial
+
+https://www.clicdata.com/examples/dashboard-viewer/?dashurl=https://marketplace.clicdata.com/v/z4JB0R5zuAQP&dashheight=%20800
+https://www.clicdata.com/examples/dashboard-viewer/?dashurl=https://marketplace.clicdata.com/v/BR7moKdJHDf0&dashheight=%20670
+https://www.geckoboard.com/learn/dashboard-examples/human-resources/recruitment-dashboard-example/
+https://www.geckoboard.com/learn/dashboard-examples/marketing/adwords-marketing-dashboard-example/
+https://bl.ocks.org/NGuernse/2331fd06afbeacc9b4a21569b1cc9bdb

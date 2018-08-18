@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load staticfiles %}
+    <meta charset="UTF-8">
+    <title>Test</title>
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+       <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <style>
+            .lineg{
+                fill:none;
+                stroke:blue;
+                stoke-width:20px;
+                shape-rendering: crispEdges;
+            }
+            .axis path,.axis line{
+                fill:none;
+                stroke:black;
+                stroke-width:3px;
+                hape-rendering: crispEdges;
+            }
+            .axis text{
+                font-family: "Arial";
+                font-weight: 100;
+                font-size: small;
+            }
+    </style>
+</head>
+<body>
+        <form style="text-align: center" name="myform" id="myform" action="#" >
+            <label>X:</label>
+            <input type="text" id="X" placeholder="X value">
+            <br>
+            <label>Y:</label>
+            <input  type="text" id="Y" placeholder="Y value">
+            <br>
+            <button class="btn btn-info" id="btn1">Submit</button>
+        </form>
+        <div class="container" style="text-align: center"></div>
+        <script>
+             var arr = [];
+             function graph() {
+                 $('.container').html('');
+                 console.log('In here');
+                 console.log(arr);
+                 var width=500;
+                 var height=500;
+
+                 var margin={
+                   top:20,
+                   left:30,
+                   right:20,
+                   bottom:30
+                 };
+                 var svg=d3.select('.container')
+                            .append("svg")
+                            .attr({
+                               'width':width,
+                                'height':height
+
+                            })
+                            .style('background',
+                                '#f4f4f4');
+                 width=width - margin.left - margin.right;
+                 height = height - margin.top - margin.bottom;
+                 var xscale=d3.scale.linear()
+                     .domain([0,d3.max(arr,function (d) {
+                         return d.x;
+                     })])
+                     .range([0,width]);
+                 var yscale=d3.scale.linear()
+                     .domain([0,d3.max(arr,function (d) {
+                         return d.y;
+                     })])
+                     .range([height,20]);
+                 var line1=d3.svg.line()
+                            .x(function (d) {
+                                return xscale(d.x);
+                            })
+                            .y(function (d) {
+                                return yscale(d.y);
+                            });
+                 var linearGrqaph=svg.append("path")
+                                        .attr('class','lineg')
+                                        .attr('d',line1(arr));
+                 var xAxis = d3.svg.axis()
+                                .scale(xscale)
+                                .orient('bottom')
+                                .ticks(10);
+                   var yAxis = d3.svg.axis()
+                                .scale(yscale)
+                                .orient('left')
+                                .ticks(10);
+                   svg.append('g')
+                       .call(xAxis)
+                       .attr('class','axis')
+                       .attr('transform','translate(30,450)');
+                   svg.append('g')
+                       .call(yAxis)
+                       .attr('class','axis')
+                       .attr('transform','translate(30,0)');
+             }
+            function validate1() {
+
+                console.log(document.myform.X.value);
+                if(isNaN(document.myform.X.value)||document.myform.X.value=="")
+                {
+                    alert("Enter a numbeerical value for X");
+                    document.myform.X.focus();
+                    return false;
+                }
+                 if(isNaN(document.myform.Y.value)||document.myform.Y.value=="")
+                {
+                    alert("Enter a numbeerical value for Y");
+                    document.myform.Y.focus();
+                    return false;
+                }
+                return true;
+            }
+            $(document).ready(function () {
+                console.log('huhu');
+
+                var  jsondata;
+                var url="{% static 'nse/xy2.json' %}"
+                $.ajax({
+                    dataType:"json",
+                    url:url,
+                    async:false,
+                    success:function (data) {
+                        jsondata=data;
+                    }
+                });
+                for(var i=0;i<jsondata.length;i++)
+                {
+                    var temp={
+                        "x":Number(jsondata[i].x),
+                        "y":Number(jsondata[i].y)
+                    }
+                    arr.push(temp);
+                }
+                console.log('Array now');
+                console.log(arr);
+                graph();//before
+                $("#myform").submit(function (e) {
+                    if(validate1()==true)
+                    {
+                        e.preventDefault();
+                        x=$("#X").val();
+                        y=$("#Y").val();
+                        console.log(x+'<-X now '+ y+'<- Y now');
+                        document.getElementById("myform").reset();
+                        x=Number(x);
+                        y=Number(y);
+                        arr.push({
+                            "x":x,
+                            "y":y
+                        });
+                        console.log(arr);
+                        $.ajax({
+                            url:'update/',
+                            type:'POST',
+                            data:{
+                                csrfmiddlewaretoken:"{{ csrf_token }}",
+                                data:arr},
+                            success:function (data) {
+                                console.log('done!!');
+                            },
+                            error:function (e) {
+                                console.log(e);
+                            }
+                        });
+                        graph();
+                    }
+                });
+            })
+        </script>
+</body>
+</html>

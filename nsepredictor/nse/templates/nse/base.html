@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load staticfiles %}
+    <title>{% block title %}{% endblock %}</title>
+    <style>{% block css %}{% endblock %}</style>
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+
+        <nav class="navbar navbar-inverse">
+        <!--logo-->
+
+            <button type="button" class="navbar-toggle" data-toggle="colapse">
+                <span class="icon-bar"></span>
+                 <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        <div class="collapse navbar-collapse">
+
+            <ul class="nav navbar-nav">
+                <li>
+                            <div class="container-fluid">
+                        <div class="navbar-header">
+                          <a class="navbar-brand" href="#">
+                            <img alt="NSE Predictor" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-cIncvEg2QswGvHmPAYS5bXxCW0jdxHwiTfW5gAVkKwCugCyOgg" width="100" height="70">
+
+                          </a>
+                        </div>
+                    </div>
+                </li>
+                <li class="">
+                    <a href="#">
+                        <span class="glyphicon glyphicon-cd" aria-hidden="true"></span>
+                        Album
+                    </a>
+                </li>
+                <li class="">
+                    <a href="#" data-toggle="tooltip" title="Add Song">
+                        <span class="glyphicon glyphicon-music"></span>
+                        Song
+                    </a>
+                </li>
+
+            </ul>
+            <form class="navbar-form navbar-left" action="#" method="post">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search" name="search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" title="Add Album">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Add Album
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="glyphicon glyphicon-off"></span>
+                        LogOut
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+    </nav>
+    {% block body1 %}{% endblock %}
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script>
+        {% block js %}
+                var arr=[];
+			var N=43;//Number Of Reading Available
+		var M=3;//Number Of Independent Variables+1
+		var inv=[];//Stores Inverse of matrix
+		var trans=[];//Stores Transpose Of Matrix
+		var mul=[];//Stores Product Of 2 Matrices
+		var temp=[];//Stores a Temporary Of Matrix
+		var Y=[];//Stores Dependent Variable Of Matrix
+		var X=[];//Stores Independent Variable Of Matrix
+		var beta=[];//Stores Beta coefficient Of Regresssion
+		var X_to_find=[];//Stores Independent Variables for which we need to predict value
+
+		function initialise_the_arrays()
+		{
+            N=arr.length;
+			var i,j;
+			for (i=0;i<123;i++)
+			{
+				 inv[i]=[];
+				 trans[i]=[];
+				 mul[i]=[];
+				 temp[i]=[];
+				 Y[i]=[];
+				 X[i]=[];
+				 beta[i]=[];
+				 X_to_find[i]=[];
+			}
+			for(i=0;i<123;i++)
+			{
+				for(j=0;j<123;j++)
+				{
+					inv[i].push(0);
+
+					 trans[i].push(0);
+					 mul[i].push(0);
+					 temp[i].push(0);
+					 Y[i].push(0);
+					 X[i].push(0);
+					 beta[i].push(0);
+					 X_to_find[i].push(0);
+				}
+			}
+		}
+		function Taking_Values_Of_Independent_Variables()
+		{
+			var i,j;
+			for(i=0;i<123;i++)
+			{
+				X[i][0]=1;
+			}
+            for(i=0;i<N;i++)
+            {
+                X[i][1]=arr[i].sensex;
+                X[i][2]=arr[i].gold;
+                X[i][3]=arr[i].nasdaq;
+                Y[i][0]=arr[i].nifty;
+            }
+
+			X_to_find[0][0]=1;
+			X_to_find[0][1]=33788.54;
+			X_to_find[0][2]=31210.0;
+            X_to_find[0][3]=6950.53;
+		}
+
+		function transpose_of_matrix(array1,row,col)
+		{
+			var i,j;
+			 for(i=0;i<row;i++)
+		    {
+		        for(j=0;j<col;j++)
+		        {
+		            trans[j][i]=array1[i][j];
+		        }
+		    }
+		}
+		function multiplication_of_matrix(array1,array2,row1,col2,row2)
+		{
+			var i,j,k;
+			for(i=0;i<row1;i++)
+			{
+			    for(j=0;j<col2;j++)
+		 	   {
+		 	       var  temp=0;
+		  	      for(k=0;k<row2;k++)
+		  	      {
+		 	           temp+=array1[i][k]*array2[k][j];
+		  	      }
+			      mul[i][j]=temp;
+			    }
+			}
+		}
+		function inverse_of_matrix(arr,row)
+		{
+			var i,j,k;
+		    for(i = 0; i < row; i++)
+		    {
+		        for(j = row; j < 2*row; j++)
+		        {
+		            if(i==(j-row))
+		                arr[i][j] = 1.0;
+		            else
+		                arr[i][j] = 0.0;
+		        }
+		    }
+		    for(i = 0; i < row; i++)
+		    {
+		        for(j = 0; j < row; j++)
+		        {
+		            if(i!=j)
+		            {
+		                var ratio = arr[j][i]/arr[i][i];
+		                for(k = 0; k < 2*row; k++)
+		                    arr[j][k] -= ratio * arr[i][k];
+		            }
+		        }
+		    }
+		    for(i = 0; i < row; i++)
+		    {
+		        var a = arr[i][i];
+		        for(j = 0; j < 2*row; j++)
+		        {
+		            arr[i][j] /= a;
+		            temp[i][j]=arr[i][j];
+		        }
+		    }
+		    for(i = 0; i < row; i++)
+		    {
+		        var k=0;
+		        for(j = row; j < 2*row; j++)
+		        {
+		            inv[i][k]=temp[i][j];
+		            k++;
+		        }
+		    }
+		}
+
+		//FORMULA: Beta=(X*.X)'.X*.Y                              Here:Transpose(X)=X*  and Inverse(X)=X'  Product(A,B)=A.B
+		$(".btn1").click(function () {
+			//initailising arrays..................................
+			initialise_the_arrays();
+			//Take The Dependent Variables.........................
+			Taking_Values_Of_Independent_Variables();
+			//Finding transpose(X)=X*
+			transpose_of_matrix(X,N,M);//stored in trans........................MXN
+			//Multiplying X* and X=(X*.X)
+			multiplication_of_matrix(trans,X,M,M,N);//stored in mul........multiplying MXN and NXM.........result in mul MXM
+    		//Inversing of Product gained (X*.X)'
+			inverse_of_matrix(mul,M);//stored in inv...........................MXM
+			//(X*.X)'.X*
+			multiplication_of_matrix(inv,trans,M,N,M);//stored in mul......multiplying MXM and MXN.......result mul in MXN
+    		//B=(X*.X)'.X*.Y
+			multiplication_of_matrix(mul,Y,M,1,N);//stored in mul......multiplying MXN and NX1.............result mul in MX1
+			for(var i=0;i<M;i++)
+			{
+      		    beta[i][0]=mul[i][0];
+			}
+            console.log(X);
+            console.log(Y);
+
+			//Ans=Xnew.B
+			multiplication_of_matrix(X_to_find,beta,1,1,M);//stored in mul........multiplying 1XM and MX1......result mul in 1X1
+			console.log('Predicted Value'+mul[0][0]);
+            $('.predictednifty').html(mul[0][0]);
+            graph();
+		});
+         var arr=[];
+             var arr2=[];
+    function graph()
+    {
+            var NIFTY=[];
+            for(var i=0;i<N;i++)
+            {
+                NIFTY.push(Y[i][0]);
+            }
+            var SENSEX=[];
+            for(var i=0;i<N;i++)
+            {
+                SENSEX.push(X[i][1]);
+            }
+             var GOLD=[];
+            for(var i=0;i<N;i++)
+            {
+                GOLD.push(X[i][2]);
+            }
+             var NASDAQ=[];
+            for(var i=0;i<N;i++)
+            {
+                NASDAQ.push(X[i][3]);
+            }
+            console.log('hisdhisd');
+                    var margin = {
+                    left:50,
+                    right:20,
+                    top:20,
+                    bottom:30
+                };
+                var height=500;
+                var width=500;
+
+
+                var no=arr.length;
+                var no2=arr2.length;
+                var svg=d3.select('.container')
+                            .append('svg')
+                            .attr({
+                                "height":height,
+                                "width":width,
+                            })
+                            .style('background','#f4f4f4').attr("transform", "translate(30, 20)");;
+                height= height- margin.top - margin.bottom;
+                width = width - margin.left - margin.right;
+
+
+                var yscale=d3.scale.linear()
+                                .domain([0,d3.max(SENSEX)])
+                                .range([height,0]);
+                var xscale = d3.time.scale()
+                                .range([0, width])
+                                .domain(d3.extent(arr, function(d) { return d.Date; })); // Passing Extent of Date Object as Domain.
+                var line1=d3.svg.line()
+                            .x(function (d,i) {
+                                console.log(d+' '+i);
+                                return xscale(i);
+                            })
+                            .y(function (d,i) {
+                                return yscale(d);
+                            });
+                var Linegraph=svg.append('path')
+                                     .attr("class", "line")
+                                    .attr('d',line1(SENSEX))
+                                    .attr("transform", "translate("+(margin.left-20)+',0)');
+                var Linegraph1=svg.append('path')
+                                     .attr("class", "line2")
+                                    .attr('d',line1(NIFTY))
+                                    .attr("transform", "translate("+(margin.left-20)+',0)');
+                var xAxis = d3.svg.axis() // X Axis.
+                  .scale(xscale)
+                  .orient("bottom")
+                  .ticks(10);
+
+              var yAxis = d3.svg.axis() // Y Axis.
+                  .scale(yscale)
+                  .orient("left")
+                  .ticks(10);
+
+              svg.append("g")
+                  .call(xAxis)
+                  .attr("class", "axis")
+                  .attr("transform", "translate(30,"+height+')');
+
+              svg.append("g")
+                  .call(yAxis)
+                  .attr("class", "axis")
+                  .attr("transform", "translate(30,0)");
+
+    }
+
+$(document).ready(function () {
+               console.log("loaded");
+
+                var jsondata;
+                var url = "{% static 'nse//jsonData.json' %}";
+                $.ajax({
+                   dataType:"json",
+                    url:url,
+                    async:false,
+                    success:function (data) {
+                        jsondata=data;
+                    }
+                });
+                 console.log("ok1");
+                var no=0;
+                for(var i=0;i<jsondata.length;i++)
+                {
+                    var temp ={
+                         "date":(jsondata[i].Date),
+                        "sensex":Number(jsondata[i].SENSEX),
+                        "nifty":Number(jsondata[i].NIFTY),
+                        "nasdaq":Number(jsondata[i].NASDAQ),
+                        "gold":Number(jsondata[i].GOLD),
+                    }
+                    arr.push(temp);
+                    no++;
+                }
+                console.log("ok2");
+                var	parseDate = d3.time.format("%d-%b-%y").parse; // Converts string to date object.
+
+                for(var i = 0; i < no; i++) { // Converting string to Date object of each arr element.
+                         arr[i].date = parseDate(arr[i].date);
+                 }
+                console.log(arr);
+
+            });
+
+
+
+        {% endblock %}
+    </script>
+</body>
+</html>
